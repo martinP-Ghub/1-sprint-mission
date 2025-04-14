@@ -1,53 +1,41 @@
 package com.sprint.mission.discodeit.entity;
 
+import com.sprint.mission.discodeit.entity.base.BaseUpdatableEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
-import lombok.Builder;
+import lombok.AccessLevel;
 import lombok.Getter;
-
-import java.util.List;
-import java.util.UUID;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "channels")
 @Getter
-@Builder
-public class Channel extends BaseUpdatableEntity{
-    public enum ChannelType {Private, Public};
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class Channel extends BaseUpdatableEntity {
 
-    @Column(name = "name")
-    private String name;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private ChannelType type;
+  @Column(length = 100)
+  private String name;
+  @Column(length = 500)
+  private String description;
 
-    @Column(name = "discription")
-    private String description;
-//    private List<UUID> member;
-//    private UUID owner;
+  public Channel(ChannelType type, String name, String description) {
+    this.type = type;
+    this.name = name;
+    this.description = description;
+  }
 
-    @Column(name = "type")
-    private ChannelType channelType;
-
-    protected Channel() { }
-
-//List<UUID> member, UUID owner,
-    public Channel(String name, String description, ChannelType channelType){
-        super();
-        this.name = name;
-        this.description = description;
-//        this.member = member;
-//        this.owner = owner;
-        this.channelType = channelType;
+  public void update(String newName, String newDescription) {
+    if (newName != null && !newName.equals(this.name)) {
+      this.name = newName;
     }
-
-    public void setName(String name){
-        this.name = name;
+    if (newDescription != null && !newDescription.equals(this.description)) {
+      this.description = newDescription;
     }
-
-    public void setDescription(String description){
-        this.description = description;
-    }
-
-    public boolean isPrivate(){
-        return this.channelType == ChannelType.Private;
-    }
+  }
 }

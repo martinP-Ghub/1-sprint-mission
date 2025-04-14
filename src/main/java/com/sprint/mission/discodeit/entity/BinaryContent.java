@@ -1,45 +1,29 @@
 package com.sprint.mission.discodeit.entity;
 
-
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.Instant;
-import java.util.UUID;
+import com.sprint.mission.discodeit.entity.base.BaseEntity;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "binary_contents")
-@Getter @Setter
-@Builder
-//@AllArgsConstructor
+@Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class BinaryContent extends BaseEntity{
+public class BinaryContent extends BaseEntity {
 
-    @Column(name = "type_id")
-    private UUID typeId;
+  @Column(nullable = false)
+  private String fileName;
+  @Column(nullable = false)
+  private Long size;
+  @Column(length = 100, nullable = false)
+  private String contentType;
 
-    @Column(name = "file_name")
-    private String fileName;
-
-    @Column(name = "size")
-    private Long size;
-
-    @Column(name = "content_type")
-    private String contentType;
-
-//    @Lob
-//    @JdbcTypeCode(SqlTypes.BINARY)
-//    @Column(name = "bytes", columnDefinition = "BYTEA")
-//    private byte[] bytes;
-
-//    protected BinaryContent() { }
-
-    //, byte[] bytes
-    public BinaryContent(UUID typeId, String originalFilename, Long size, String contentType) {
-        this.typeId = typeId;
-        this.fileName = originalFilename;
-        this.size = size;
-        this.contentType = contentType;
-//        this.bytes = bytes;
-    }
+  public BinaryContent(String fileName, Long size, String contentType) {
+    this.fileName = fileName;
+    this.size = size;
+    this.contentType = contentType;
+  }
 }

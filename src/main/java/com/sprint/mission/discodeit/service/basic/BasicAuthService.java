@@ -1,32 +1,42 @@
 package com.sprint.mission.discodeit.service.basic;
 
+import com.sprint.mission.discodeit.dto.data.UserDto;
+import com.sprint.mission.discodeit.dto.request.LoginRequest;
 import com.sprint.mission.discodeit.entity.User;
+import com.sprint.mission.discodeit.exception.user.InvalidCredentialsException;
+import com.sprint.mission.discodeit.exception.user.UserNotFoundException;
+import com.sprint.mission.discodeit.mapper.UserMapper;
 import com.sprint.mission.discodeit.repository.UserRepository;
 import com.sprint.mission.discodeit.service.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-
 @Slf4j
-@Service
 @RequiredArgsConstructor
+@Service
 public class BasicAuthService implements AuthService {
-    private final UserRepository userRepository;
 
-    @Override
-    public boolean login(String username, String password) {
-        log.debug("로그인 시도 - username: {}", username);
-        List<User> users = userRepository.findAll();
+  private final UserRepository userRepository;
+  private final UserMapper userMapper;
 
-        boolean login = users.stream()
-                        .anyMatch(user -> user.getUsername().equals(username) && user.getPassword().equals(password));
+  @Transactional(readOnly = true)
+  @Override
+  public UserDto login(LoginRequest loginRequest) {
+    log.debug("로그인 시도: username={}", loginRequest.username());
+    
+    String username = loginRequest.username();
+    String password = loginRequest.password();
 
-        if (!login) log.warn("로그인 실패 - username: {}", username);
-        else log.info("로그인 성공 - username: {}", username);;
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> UserNotFoundException.withUsername(username));
 
-        return login;
+    if (!user.getPassword().equals(password)) {
+      throw InvalidCredentialsException.wrongPassword();
     }
+
+    log.info("로그인 성공: userId={}, username={}", user.getId(), username);
+    return userMapper.toDto(user);
+  }
 }
